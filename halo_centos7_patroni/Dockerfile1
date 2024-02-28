@@ -1,0 +1,54 @@
+# 使用centos:7作为基础镜像  
+FROM centos:7  
+  
+# 设置维护者信息  
+MAINTAINER wangzhibin <wangzhibin>  
+  
+# 设置环境变量  
+ENV USER="postgresql" \  
+    PASSWORD=123456 \  
+    GROUP=postgresql  
+  
+# 创建用户并设置相关权限  
+RUN useradd ${USER} \  
+    && chown -R ${USER}:${GROUP} /home/${USER} \  
+    && yum -y update \  
+    && yum install -y iptables sudo net-tools iproute openssh-server openssh-clients which vim sudo crontabs  
+  
+# 安装etcd  
+COPY etcd/etcd /usr/sbin  
+COPY etcd/etcdctl /usr/sbin  
+  
+# 安装其他软件包  
+# ... (这里可以继续添加其他软件的安装命令)  
+  
+# 安装Patroni  
+RUN yum -y install epel-release python-devel \  
+    && yum -y install python-pip \  
+    && pip install /home/${USER}/patroni/1/pip-20.3.3.tar.gz \  
+    && pip install /home/${USER}/patroni/1/psycopg2-2.8.6-cp27-cp27mu-linux_x86_64.whl \  
+    && pip install --no-index --find-links=/home/${USER}/patroni/2/ -r /home/${USER}/patroni/2/requirements.txt \  
+    && pip install /home/${USER}/patroni/3/patroni-2.0.1-py2-none-any.whl  
+  
+# 修改执行权限和其他设置  
+RUN chmod 755 /sbin/entrypoint.sh \  
+    && mkdir /home/${USER}/etcddata \  
+    && chown -R ${USER}:${GROUP} /home/${USER} \  
+    && echo 'root:root123456' | chpasswd \  
+    && chmod 755 /sbin/etcd \  
+    && chmod 755 /sbin/etcdctl \  
+    && chmod 755 /sbin/vip-manager  
+  
+# 设置sudo权限  
+RUN chmod 777 /etc/sudoers \  
+    && sed -i '/## Allow root to run any commands anywhere/a '${USER}' ALL=(ALL) NOPASSWD:ALL' /etc/sudoers \  
+    && chmod 440 /etc/sudoers  
+  
+# 切换到目标用户  
+USER ${USER}  
+  
+# 设置工作目录  
+WORKDIR /home/${USER}  
+  
+# 设置启动命令  
+CMD ["/bin/bash", "/sbin/entrypoint.sh"]

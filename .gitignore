@@ -1,0 +1,15 @@
+.DS_Store
+
+/tmp
+
+halo_14.el7.x86_64.build231127.tar.gz
+
+vip-manager_2.3.0_Linux_x86_64.tar.gz
+
+etcd.tar.gz
+
+etcd-v3.5.0-linux-amd64.tar.gz
+
+etcd-v3.5.12-linux-amd64.tar.gz
+
+patroni.tar.gz

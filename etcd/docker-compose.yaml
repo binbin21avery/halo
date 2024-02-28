@@ -1,0 +1,46 @@
+version: '3'  
+  
+services:  
+  etcd1:  
+    image: bitnami/etcd:latest  
+    ports:  
+      - "2379:2379"
+      - "2380:2380"  
+    environment:  
+      - ETCD_ADVERTISE_CLIENT_URLS=http://localhost:2379  
+      - ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster-1  
+      - ETCD_INITIAL_CLUSTER_STATE=new
+      - ALLOW_NONE_AUTHENTICATION=yes
+
+    networks:  
+      - etcd_network  
+  
+  etcd2:  
+    image: bitnami/etcd:latest  
+    ports:  
+      - "2479:2379"
+      - "2480:2380"  
+    environment:  
+      - ETCD_ADVERTISE_CLIENT_URLS=http://localhost:2479  
+      - ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster-1  
+      - ETCD_INITIAL_CLUSTER_STATE=new
+      - ALLOW_NONE_AUTHENTICATION=yes  
+    networks:  
+      - etcd_network  
+  
+  etcd3:  
+    image: bitnami/etcd:latest  
+    ports:  
+      - "2579:2379"
+      - "2580:2380"  
+    environment:  
+      - ETCD_ADVERTISE_CLIENT_URLS=http://localhost:2579  
+      - ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster-1  
+      - ETCD_INITIAL_CLUSTER_STATE=new
+      - ALLOW_NONE_AUTHENTICATION=yes  
+    networks:  
+      - etcd_network  
+  
+networks:  
+  etcd_network:  
+    driver: bridge
